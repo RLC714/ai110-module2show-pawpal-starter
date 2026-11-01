@@ -1,71 +1,32 @@
-# PawPal+ Project Reflection
+# PawPal+ Reflection
 
 ## 1. System Design
 
-**a. Initial design**
+**Three core user actions:** (1) add a pet, (2) schedule a care task for a pet, (3) view today's schedule in time order with any conflicts flagged.
 
-- Briefly describe your initial UML design.
-- What classes did you include, and what responsibilities did you assign to each?
+### 1a. Initial design
+I chose four classes. `Task` holds one activity (description, time, frequency, completion). `Pet` holds its details and a list of tasks. `Owner` holds multiple pets and can gather all their tasks. `Scheduler` takes an owner and does the thinking: retrieving, sorting, and managing tasks across all pets. I used dataclasses for `Task`, `Pet`, and `Owner`, and kept `Scheduler` a regular class because it holds behavior rather than data.
 
-**b. Design changes**
+### 1b. Design changes
+After reviewing my skeleton I made three changes: I added `pet_name` to `Task` so the scheduler can tell which pet a task belongs to (needed for conflict messages and for adding recurring tasks to the right pet); I added `due_date` alongside `time` so recurring tasks could move to a new day; and I added `Owner.get_pet()` so the scheduler can find the right pet when a recurring task is completed.
 
-- Did your design change during implementation?
-- If yes, describe at least one change and why you made it.
+## 2. Scheduling Logic
 
----
+### 2a. Features
+Sorting by date then `HH:MM`, filtering by pet and status, conflict warnings, and daily/weekly recurrence.
 
-## 2. Scheduling Logic and Tradeoffs
-
-**a. Constraints and priorities**
-
-- What constraints does your scheduler consider (for example: time, priority, preferences)?
-- How did you decide which constraints mattered most?
-
-**b. Tradeoffs**
-
-- Describe one tradeoff your scheduler makes.
-- Why is that tradeoff reasonable for this scenario?
-
----
+### 2b. Tradeoffs
+The conflict detector only flags tasks with the exact same date and time. It does not check overlapping durations (for example, a 30-minute walk at 08:00 and a feeding at 08:15). This keeps the code simple and readable, and it is reasonable because tasks here have no duration field. The cost is that near-overlaps go unnoticed.
 
 ## 3. AI Collaboration
 
-**a. How you used AI**
+**Most effective AI features:** Chat for brainstorming classes and drafting the Mermaid diagram, and agent/edit mode for edits that touched several files at once, such as recurrence changing both `Task` and `Scheduler`.
 
-- How did you use AI tools during this project (for example: design brainstorming, debugging, refactoring)?
-- What kinds of prompts or questions were most helpful?
+**Suggestion I rejected or modified:** The AI suggested a single-line, heavily nested comprehension for conflict detection. It was shorter but harder to read, so I kept a clearer loop that groups tasks by `(date, time)` in a dictionary.
 
-**b. Judgment and verification**
+**Separate chat sessions:** Using a new chat for each phase (design, implementation, algorithms, testing) kept the context focused, so suggestions stayed relevant to the current task and did not drift into earlier design decisions.
 
-- Describe one moment where you did not accept an AI suggestion as-is.
-- How did you evaluate or verify what the AI suggested?
-
----
+**Being the lead architect:** AI is fast at producing plausible code, but it does not know what my system should be. My job was to set the scope, compare every suggestion against my UML and the requirements, and say no to extra complexity. I verified behavior with the CLI demo and pytest instead of trusting that the output looked right.
 
 ## 4. Testing and Verification
-
-**a. What you tested**
-
-- What behaviors did you test?
-- Why were these tests important?
-
-**b. Confidence**
-
-- How confident are you that your scheduler works correctly?
-- What edge cases would you test next if you had more time?
-
----
-
-## 5. Reflection
-
-**a. What went well**
-
-- What part of this project are you most satisfied with?
-
-**b. What you would improve**
-
-- If you had another iteration, what would you improve or redesign?
-
-**c. Key takeaway**
-
-- What is one important thing you learned about designing systems or working with AI on this project?
+I verified the backend first with `main.py`, then with pytest tests for sorting, recurrence, conflicts, filtering, and empty-pet edge cases. Confidence: 4/5.
